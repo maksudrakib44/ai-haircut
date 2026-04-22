@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends, Request
 from fastapi.responses import Response
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -35,9 +35,9 @@ def get_gemini_client() -> GeminiClient:
 )
 @limiter.limit(f"{settings.rate_limit_per_minute}/minute")
 async def try_on_hairstyle(
+    request: Request,
     image: UploadFile = File(..., description="User selfie image (JPEG or PNG, max 5MB)"),
     style: str = Form(..., description="Desired hairstyle description (e.g., 'long curly red hair')"),
-    request = None,
     gemini_client: GeminiClient = Depends(get_gemini_client)
 ):
     """
@@ -51,7 +51,7 @@ async def try_on_hairstyle(
     start_time = time.time()
     
     # Log request
-    client_ip = request.client.host if request else "unknown"
+    client_ip = request.client.host if request.client else "unknown"
     logger.info(f"Try-on request from {client_ip} for style: {style}")
     
     try:
@@ -77,18 +77,10 @@ async def try_on_hairstyle(
         )
         
     except HTTPException:
-        # Re-raise HTTP exceptions (validation errors)
         raise
     except RuntimeError as e:
-        # Gemini API errors
         logger.error(f"AI service error: {str(e)}")
         raise HTTPException(status_code=502, detail=str(e))
     except Exception as e:
-        # Unexpected errors
         logger.exception(f"Unexpected error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-@router.get("/health")
-async def health_check():
-    """Health check endpoint for monitoring."""
-    return {"status": "healthy", "service": "ai-hairstyle", "version": "1.0.0"}
+        raise HTTPException(status_code=500, detail=str(e))

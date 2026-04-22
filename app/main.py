@@ -16,7 +16,8 @@ setup_logging()
 async def lifespan(app: FastAPI):
     """Handle startup and shutdown events."""
     logger.info("Starting AI Hairstyle Service...")
-    logger.info(f"Configuration loaded: Model={settings.gemini_model}, Workers={settings.workers}")
+    logger.info(f"Configuration loaded: AI Model={settings.gemini_model}, Workers={settings.workers}")
+    logger.info(f"API will be available at http://{settings.api_host}:{settings.api_port}")
     yield
     logger.info("Shutting down AI Hairstyle Service...")
 
@@ -58,5 +59,14 @@ async def root():
         "service": "AI Hairstyle Try-On",
         "version": "1.0.0",
         "documentation": "/docs",
-        "health": "/api/v1/health"
+        "health": "/api/v1/health",
+        "endpoints": {
+            "POST /api/v1/try-on": "Apply a new hairstyle to an image",
+            "GET /api/v1/health": "Health check"
+        }
     }
+
+@app.get("/api/v1/health")
+async def global_health_check():
+    """Global health check endpoint."""
+    return {"status": "healthy", "service": "ai-hairstyle", "version": "1.0.0"}
