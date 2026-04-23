@@ -7,8 +7,8 @@ class Settings:
     def __init__(self):
         # Google Gemini API
         self.gemini_api_key = os.getenv("GEMINI_API_KEY", "")
-        # Use the experimental image generation model
-        self.gemini_model = "gemini-2.0-flash-exp-image-generation"
+        # Use Gemini 3.1 Flash Image Preview
+        self.gemini_model = "gemini-3.1-flash-image-preview"
         
         # Server
         self.api_host = os.getenv("API_HOST", "0.0.0.0")
@@ -30,11 +30,13 @@ class Settings:
         self.log_level = os.getenv("LOG_LEVEL", "INFO")
         self.log_format = os.getenv("LOG_FORMAT", "json")
         
-        # AI prompt template
+        # AI prompt template for Gemini 3.1 Flash Image
         self.hairstyle_prompt_template = (
             "Transform the person's hairstyle to {style}. "
             "Keep the face, facial features, skin tone, and background exactly the same. "
-            "Do not change the person's identity. Output the modified image."
+            "Do not change the person's identity. "
+            "Make the hair look realistic and well-blended. "
+            "Output the modified image directly."
         )
 
 settings = Settings()
