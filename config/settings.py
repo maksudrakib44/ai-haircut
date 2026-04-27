@@ -7,7 +7,6 @@ class Settings:
     def __init__(self):
         # Google Gemini API
         self.gemini_api_key = os.getenv("GEMINI_API_KEY", "")
-        # Use Gemini 3.1 Flash Image Preview
         self.gemini_model = "gemini-3.1-flash-image-preview"
         
         # Server
@@ -30,7 +29,17 @@ class Settings:
         self.log_level = os.getenv("LOG_LEVEL", "INFO")
         self.log_format = os.getenv("LOG_FORMAT", "json")
         
-        # AI prompt template for Gemini 3.1 Flash Image
+        # Hairstyle categories (matching UI)
+        self.hairstyle_categories = {
+            "short": "short hairstyle, cropped, pixie cut or bob",
+            "medium": "medium length hairstyle, shoulder-length, layered",
+            "long": "long hairstyle, flowing, past shoulders"
+        }
+        
+        # Default styles for "All Look"
+        self.default_styles = list(self.hairstyle_categories.keys())
+        
+        # Prompt template
         self.hairstyle_prompt_template = (
             "Transform the person's hairstyle to {style}. "
             "Keep the face, facial features, skin tone, and background exactly the same. "
